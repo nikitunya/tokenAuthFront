@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LoginComponent } from './app/login/login.component';
+import { LoginComponent } from './app/components/login/login.component';
 
 @Component({
   selector: 'app-root',
