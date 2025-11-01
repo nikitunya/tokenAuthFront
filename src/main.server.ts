@@ -1,7 +1,16 @@
-import { bootstrapApplication } from '@angular/platform-browser';
-import { config } from './app/app.config.server';
+import { bootstrapApplication, BrowserModule } from '@angular/platform-browser';
+import { importProvidersFrom } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { AppRoutingModule } from './app/app.routes';
 import { AppComponent } from './app.component';
 
-const bootstrap = () => bootstrapApplication(AppComponent, config);
-
-export default bootstrap;
+export default () => bootstrapApplication(AppComponent, {
+    providers: [
+      importProvidersFrom(
+        BrowserModule,
+        FormsModule,
+        ReactiveFormsModule,
+        AppRoutingModule
+      )
+    ]
+  });

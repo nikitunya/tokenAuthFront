@@ -1,1 +1,91 @@
-<p>register works!</p>
+<div class="row justify-content-md-center mt-5">
+    <div class="col-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Register</h5>
+                <form >
+                    <div class="mb-3">
+                        <label
+                            for="name"
+                            class="form-label">Name
+                        </label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="name"
+                            name="name"
+                            [(ngModel)]="name"
+                        />
+                        <div *ngIf="validationErrors?.name != undefined" class="flex flex-col">
+                            <small  class="text-danger">
+                                {{validationErrors.name[0]}}
+                            </small >
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label
+                            for="email"
+                            class="form-label">
+                                Email address
+                        </label>
+                        <input
+                            type="email"
+                            class="form-control"
+                            id="email"
+                            name="email"
+                            required
+                            [(ngModel)]="email"
+                        />
+                        <div *ngIf="validationErrors?.email != undefined" class="flex flex-col">
+                            <small  class="text-danger">
+                                {{validationErrors.email[0]}}
+                            </small >
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label
+                            for="password"
+                            class="form-label">Password
+                        </label>
+                        <input
+                            type="password"
+                            class="form-control"
+                            id="password"
+                            name="password"
+                            required
+                            [(ngModel)]="password"
+                        />
+                        <div *ngIf="validationErrors?.password != undefined" class="flex flex-col">
+                            <small  class="text-danger">
+                                {{validationErrors.password[0]}}
+                            </small >
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label
+                            for="confirm-password"
+                            class="form-label">Confirm Password
+                        </label>
+                        <input
+                            type="password"
+                            class="form-control"
+                            id="confirm-password"
+                            name="confirm-password"
+                            required
+                            [(ngModel)]="confirmPassword"
+                        />
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button
+                            [disabled]="isSubmitting || (password.length <= 0 || email.length <= 0 || confirmPassword.length <= 0)"
+                            (click)="registerAction()"
+                            type="button"
+                            class="btn btn-primary btn-block">Register Now</button>
+                        <p className="text-center">Have already an account <a routerLink="/login">Login here</a>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

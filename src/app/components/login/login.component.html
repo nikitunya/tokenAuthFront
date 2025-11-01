@@ -1,30 +1,52 @@
-<div class="row">
-  <div class="col-md-4 offset-md-4 col-sm-6 offset-sm-3">
-    <div class="card auth">
-      <div class="card-body auth-card">
-        <div class="auth-avatar">
-          <img src="https://pluspng.com/img-png/user-png-icon-account-avatar-human-male-man-men-people-person-download-svg-download-png-edit-icon-512.png" alt="user" class="user-image">
-        </div>
-        <form (submit)="login(userData)">
-          <div class="form-group">
-            <label for="email">Email : </label>
-            <input type="text" name="email" class="form-control" placeholder="Email" [(ngModel)]="userData.email">
+<div class="row justify-content-md-center mt-5">
+  <div class="col-4">
+      <div class="card">
+          <div class="card-body">
+              <h5 class="card-title mb-4">Sign In</h5>
+              <form >
+                  
+                  <p *ngIf="validationErrors.length > 0" class='text-center '>
+                      <small class='text-danger'>{{validationErrors}}</small>
+                  </p>
+                  <div class="mb-3">
+                      <label
+                          for="email"
+                          class="form-label">
+                              Email address
+                      </label>
+                      <input
+                          type="email"
+                          class="form-control"
+                          id="email"
+                          name="email"
+                          required
+                          [(ngModel)]="email"
+                      />
+                  </div>
+                  <div class="mb-3">
+                      <label
+                          for="password"
+                          class="form-label">Password
+                      </label>
+                      <input
+                          type="password"
+                          class="form-control"
+                          id="password"
+                          name="password"
+                          required
+                          [(ngModel)]="password"
+                      />
+                  </div>
+                  <div class="d-grid gap-2">
+                      <button
+                          [disabled]="isSubmitting || (password.length <= 0 || email.length <= 0)"
+                          (click)="loginAction()"
+                          type="button"
+                          class="btn btn-primary btn-block">Login</button>
+                      <p class="text-center">Don't have account? <a routerLink="/register">Register here</a></p>
+                  </div>
+              </form>
           </div>
-          <div class="form-group">
-            <label for="password">Password : </label>
-            <input type="password" name="password" class="form-control" placeholder="********" [(ngModel)]="userData?.password">
-            <div class="text-right forget-pass">
-              <a routerLink="/forget-password">Forget Password ?</a>
-            </div>
-          </div>
-          <div class="text-center">
-            <input type="submit" class="btn btn-my" value="Login">
-          </div>
-        </form>
-        <div class="text-center sign-up">
-          Don`t have an account ? <a routerLink="/sign-up">Sign Up</a> hera.
-        </div>
       </div>
-    </div>
   </div>
 </div>

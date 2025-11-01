@@ -1,9 +1,9 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { UserService } from '../../services/user.service';
-import { User } from '../../model/user.model';
+import { Router } from '@angular/router';
+import { UserAuthService } from '../../user-auth.service';
 import { FormsModule } from '@angular/forms';
-
+import { CommonModule } from '@angular/common';
+ 
 @Component({
   selector: 'login',
   standalone: true,
@@ -11,19 +11,40 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent implements OnInit {
-  userData?: User;
-  constructor(private user: UserService) {}
-
-  ngOnInit() {
-    this.user.currentUserData.subscribe(userData => (this.userData = userData));
+export class LoginComponent implements OnInit{
+  email:string = ''
+  password:string = ''
+  isSubmitting:boolean = false
+  validationErrors:Array<any> = []
+ 
+  constructor(public userAuthService: UserAuthService, private router: Router) {}
+ 
+  ngOnInit(): void {
+    if(localStorage.getItem('token') != "" && localStorage.getItem('token') != null){
+      this.router.navigateByUrl('/dashboard')
+    }
   }
-
-  changeData(event: any) {
-  //   var msg = event.target.value;
-  //   this.user.changeData(msg);
+ 
+  loginAction() {
+    this.isSubmitting = true;
+    let payload = {
+      email:this.email,
+      password: this.password,
   }
-  login(data: any) {
-  //   this.user.changeData(data);
+    this.userAuthService.login(payload)
+    .then(({data}: any) => {
+      localStorage.setItem('token', data.token)
+      this.router.navigateByUrl('/dashboard')
+      return data
+    }).catch((error: any) => {
+      this.isSubmitting = false;
+      if (error.response.data.errors != undefined) {
+        this.validationErrors = error.response.data.message
+      }
+      if (error.response.data.error != undefined) {
+        this.validationErrors = error.response.data.error
+      }
+      return error
+    })
   }
 }
