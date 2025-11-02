@@ -1,27 +1,34 @@
-
+import { bootstrapApplication } from '@angular/platform-browser';
+import { importProvidersFrom } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { provideRouter, Routes } from '@angular/router';
 import axios from 'axios';
 import { environment } from './environments/environment.development';
-import { bootstrapApplication, BrowserModule } from '@angular/platform-browser';
 import { AppComponent } from './app.component';
-import { importProvidersFrom } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { AppRoutingModule } from './app/app.routes';
-  
-  
-axios.defaults.baseURL = environment.apiUrl
-   
-axios.interceptors.request.use(function (config) {
-  config.headers['X-Binarybox-Api-Key'] = environment.apiKey
+import { LoginComponent } from './app/components/login/login.component';
+import { DashboardComponent } from './app/components/dashboard/dashboard.component'; // Example
+import { RegisterComponent } from './app/components/register/register.component';
+
+// Axios global setup
+axios.defaults.baseURL = environment.apiUrl;
+axios.interceptors.request.use((config) => {
+  if (!config.headers) config.headers = {} as any; // type cast
+  config.headers['X-Binarybox-Api-Key'] = environment.apiKey;
   return config;
 });
-  
+
+const routes: Routes = [
+  { path: '', redirectTo: 'login', pathMatch: 'full'},
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
+  { path: 'dashboard', component: DashboardComponent },
+];
+
+
 bootstrapApplication(AppComponent, {
   providers: [
-    importProvidersFrom(
-      BrowserModule,
-      FormsModule,
-      ReactiveFormsModule,
-      AppRoutingModule
-    )
+    importProvidersFrom(BrowserModule, FormsModule, ReactiveFormsModule),
+    provideRouter(routes)
   ]
-});
+})

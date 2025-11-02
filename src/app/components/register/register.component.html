@@ -1,91 +1,140 @@
 <div class="row justify-content-md-center mt-5">
-    <div class="col-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title mb-4">Register</h5>
-                <form >
-                    <div class="mb-3">
-                        <label
-                            for="name"
-                            class="form-label">Name
-                        </label>
-                        <input
-                            type="text"
-                            class="form-control"
-                            id="name"
-                            name="name"
-                            [(ngModel)]="name"
-                        />
-                        <div *ngIf="validationErrors?.name != undefined" class="flex flex-col">
-                            <small  class="text-danger">
-                                {{validationErrors.name[0]}}
-                            </small >
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label
-                            for="email"
-                            class="form-label">
-                                Email address
-                        </label>
-                        <input
-                            type="email"
-                            class="form-control"
-                            id="email"
-                            name="email"
-                            required
-                            [(ngModel)]="email"
-                        />
-                        <div *ngIf="validationErrors?.email != undefined" class="flex flex-col">
-                            <small  class="text-danger">
-                                {{validationErrors.email[0]}}
-                            </small >
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label
-                            for="password"
-                            class="form-label">Password
-                        </label>
-                        <input
-                            type="password"
-                            class="form-control"
-                            id="password"
-                            name="password"
-                            required
-                            [(ngModel)]="password"
-                        />
-                        <div *ngIf="validationErrors?.password != undefined" class="flex flex-col">
-                            <small  class="text-danger">
-                                {{validationErrors.password[0]}}
-                            </small >
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label
-                            for="confirm-password"
-                            class="form-label">Confirm Password
-                        </label>
-                        <input
-                            type="password"
-                            class="form-control"
-                            id="confirm-password"
-                            name="confirm-password"
-                            required
-                            [(ngModel)]="confirmPassword"
-                        />
-                    </div>
-                    <div class="d-grid gap-2">
-                        <button
-                            [disabled]="isSubmitting || (password.length <= 0 || email.length <= 0 || confirmPassword.length <= 0)"
-                            (click)="registerAction()"
-                            type="button"
-                            class="btn btn-primary btn-block">Register Now</button>
-                        <p className="text-center">Have already an account <a routerLink="/login">Login here</a>
-                        </p>
-                    </div>
-                </form>
+  <div class="col-4">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title mb-4 text-center">Register</h5>
+        <form>
+          <!-- First Name -->
+          <div class="mb-3">
+            <label for="firstName" class="form-label">First Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="firstName"
+              name="firstName"
+              [(ngModel)]="entity.firstName"
+              required
+            />
+            <div *ngIf="validationErrors?.firstName" class="flex flex-col">
+              <small class="text-danger">{{ validationErrors.firstName[0] }}</small>
             </div>
-        </div>
+          </div>
+
+          <!-- Last Name -->
+          <div class="mb-3">
+            <label for="lastName" class="form-label">Last Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="lastName"
+              name="lastName"
+              [(ngModel)]="entity.lastName"
+              required
+            />
+            <div *ngIf="validationErrors?.lastName" class="flex flex-col">
+              <small class="text-danger">{{ validationErrors.lastName[0] }}</small>
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="mb-3">
+            <label for="email" class="form-label">Email address</label>
+            <input
+              type="email"
+              class="form-control"
+              id="email"
+              name="email"
+              [(ngModel)]="entity.email"
+              required
+            />
+            <div *ngIf="validationErrors?.email" class="flex flex-col">
+              <small class="text-danger">{{ validationErrors.email[0] }}</small>
+            </div>
+          </div>
+
+          <!-- Phone -->
+          <div class="mb-3">
+            <label for="phone" class="form-label">Phone</label>
+            <input
+              type="tel"
+              class="form-control"
+              id="phone"
+              name="phone"
+              [(ngModel)]="entity.phone"
+              required
+            />
+            <div *ngIf="validationErrors?.phone" class="flex flex-col">
+              <small class="text-danger">{{ validationErrors.phone[0] }}</small>
+            </div>
+          </div>
+
+          <!-- Password -->
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input
+              type="password"
+              class="form-control"
+              id="password"
+              name="password"
+              [(ngModel)]="entity.password"
+              required
+            />
+            <div *ngIf="validationErrors?.password" class="flex flex-col">
+              <small class="text-danger">{{ validationErrors.password[0] }}</small>
+            </div>
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="mb-3">
+            <label for="confirmPassword" class="form-label">Confirm Password</label>
+            <input
+              type="password"
+              class="form-control"
+              id="confirmPassword"
+              name="confirmPassword"
+              [(ngModel)]="confirmPassword"
+              required
+            />
+            <div
+              *ngIf="
+                (confirmPassword && entity.password !== confirmPassword) ||
+                validationErrors?.confirmPassword
+              "
+              class="flex flex-col"
+            >
+              <small class="text-danger">
+                {{ validationErrors?.confirmPassword?.[0] || 'Passwords do not match' }}
+              </small>
+            </div>
+          </div>
+
+          <!-- Submit -->
+          <div class="d-grid gap-2">
+            <button
+              type="button"
+              class="btn btn-primary btn-block"
+              [disabled]="
+                isSubmitting ||
+                !entity.firstName ||
+                !entity.lastName ||
+                !entity.email ||
+                !entity.phone ||
+                !entity.password ||
+                !confirmPassword ||
+                entity.password !== confirmPassword
+              "
+              (click)="registerAction()"
+            >
+              Register Now
+            </button>
+
+            <p class="text-center mt-2">
+              Already have an account?
+              <a routerLink="/login">Login here</a>
+            </p>
+          </div>
+        </form>
+      </div>
     </div>
+  </div>
 </div>

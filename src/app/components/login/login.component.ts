@@ -1,50 +1,46 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { UserAuthService } from '../../user-auth.service';
-import { FormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
+import { UserAuthService } from '../../services/user-auth.service';
 import { CommonModule } from '@angular/common';
- 
+import { FormsModule } from '@angular/forms';
+import { JwtToken } from '../../model/jwtToken';
+import { User } from '../../model/user';
+
 @Component({
-  selector: 'login',
+  selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent implements OnInit{
-  email:string = ''
-  password:string = ''
-  isSubmitting:boolean = false
-  validationErrors:Array<any> = []
- 
+export class LoginComponent implements OnInit {
+  entity: User = {};
+  isSubmitting = false;
+  validationErrors:any = []
+
   constructor(public userAuthService: UserAuthService, private router: Router) {}
- 
+
   ngOnInit(): void {
-    if(localStorage.getItem('token') != "" && localStorage.getItem('token') != null){
-      this.router.navigateByUrl('/dashboard')
+    if (typeof window !== 'undefined') {   // ✅ check if we are in the browser
+      const token = localStorage.getItem('token');
+      if (token) {
+        this.router.navigateByUrl('/dashboard');
+      }
     }
   }
- 
+
   loginAction() {
     this.isSubmitting = true;
-    let payload = {
-      email:this.email,
-      password: this.password,
-  }
-    this.userAuthService.login(payload)
-    .then(({data}: any) => {
-      localStorage.setItem('token', data.token)
-      this.router.navigateByUrl('/dashboard')
-      return data
-    }).catch((error: any) => {
-      this.isSubmitting = false;
-      if (error.response.data.errors != undefined) {
-        this.validationErrors = error.response.data.message
-      }
-      if (error.response.data.error != undefined) {
-        this.validationErrors = error.response.data.error
-      }
-      return error
-    })
+
+    this.userAuthService.login(this.entity)
+      .then(({data}: any) => {
+        localStorage.setItem('token', data.jwtToken);
+        this.router.navigateByUrl('/dashboard');
+      })
+      .catch((error: any) => {
+        this.isSubmitting = false;
+        this.validationErrors =
+          error.response?.data?.errors || error.response?.data?.error || [];
+      });
   }
 }

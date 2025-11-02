@@ -1,52 +1,68 @@
 <div class="row justify-content-md-center mt-5">
   <div class="col-4">
-      <div class="card">
-          <div class="card-body">
-              <h5 class="card-title mb-4">Sign In</h5>
-              <form >
-                  
-                  <p *ngIf="validationErrors.length > 0" class='text-center '>
-                      <small class='text-danger'>{{validationErrors}}</small>
-                  </p>
-                  <div class="mb-3">
-                      <label
-                          for="email"
-                          class="form-label">
-                              Email address
-                      </label>
-                      <input
-                          type="email"
-                          class="form-control"
-                          id="email"
-                          name="email"
-                          required
-                          [(ngModel)]="email"
-                      />
-                  </div>
-                  <div class="mb-3">
-                      <label
-                          for="password"
-                          class="form-label">Password
-                      </label>
-                      <input
-                          type="password"
-                          class="form-control"
-                          id="password"
-                          name="password"
-                          required
-                          [(ngModel)]="password"
-                      />
-                  </div>
-                  <div class="d-grid gap-2">
-                      <button
-                          [disabled]="isSubmitting || (password.length <= 0 || email.length <= 0)"
-                          (click)="loginAction()"
-                          type="button"
-                          class="btn btn-primary btn-block">Login</button>
-                      <p class="text-center">Don't have account? <a routerLink="/register">Register here</a></p>
-                  </div>
-              </form>
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title mb-4 text-center">Sign In</h5>
+        <form>
+          <!-- General Error -->
+          <p *ngIf="validationErrors?.length > 0" class="text-center">
+            <small class="text-danger">{{ validationErrors }}</small>
+          </p>
+
+          <!-- Email -->
+          <div class="mb-3">
+            <label for="email" class="form-label">Email address</label>
+            <input
+              type="email"
+              class="form-control"
+              id="email"
+              name="email"
+              [(ngModel)]="entity.email"
+              required
+            />
+            <div *ngIf="validationErrors?.email" class="flex flex-col">
+              <small class="text-danger">{{ validationErrors.email[0] }}</small>
+            </div>
           </div>
+
+          <!-- Password -->
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input
+              type="password"
+              class="form-control"
+              id="password"
+              name="password"
+              [(ngModel)]="entity.password"
+              required
+            />
+            <div *ngIf="validationErrors?.password" class="flex flex-col">
+              <small class="text-danger">{{ validationErrors.password[0] }}</small>
+            </div>
+          </div>
+
+          <!-- Submit -->
+          <div class="d-grid gap-2">
+            <button
+              type="button"
+              class="btn btn-primary btn-block"
+              [disabled]="
+                isSubmitting ||
+                !entity.email ||
+                !entity.password
+              "
+              (click)="loginAction()"
+            >
+              Login
+            </button>
+
+            <p class="text-center mt-2">
+              Don't have an account?
+              <a routerLink="/register">Register here</a>
+            </p>
+          </div>
+        </form>
       </div>
+    </div>
   </div>
 </div>
