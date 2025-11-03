@@ -28,17 +28,17 @@
 
     <!-- Action Buttons and Result Fields -->
     <div class="row mt-5 justify-content-center">
-      <!-- Customers -->
+      <!-- Revoke -->
       <div class="col-md-3 mb-3 text-center">
-        <button class="btn btn-primary mb-2" (click)="listCustomers()">
-          Load Customers
+
+        <button class="btn btn-danger mb-2" (click)="revokeAccess()">
+          Revoke Access
         </button>
         <input
-          type="text"
-          class="form-control"
-          [value]="customers.join(', ')"
-          readonly
-          placeholder="Customers will appear here"
+          type="email"
+          class="form-control mb-2"
+          [(ngModel)]="revokeEmail"
+          placeholder="Enter email to revoke"
         />
       </div>
 

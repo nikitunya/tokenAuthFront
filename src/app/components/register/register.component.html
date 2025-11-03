@@ -75,13 +75,13 @@
               name="phone"
               [(ngModel)]="entity.phone"
               required
-              pattern="^[0-9]{9,15}$"
+              pattern="^\+?[0-9]{9,15}$"
               #phoneRef="ngModel"
             />
             <div *ngIf="phoneRef.invalid && phoneRef.touched" class="flex flex-col">
               <small *ngIf="phoneRef.errors?.['required']" class="text-danger">Phone number is required.</small>
               <small *ngIf="phoneRef.errors?.['pattern']" class="text-danger">
-                Phone must contain 9–15 digits.
+                Phone must contain 9–15 digits and can optionally start with +.
               </small>
             </div>
           </div>

@@ -17,10 +17,9 @@ export class UserAuthService {
   
   constructor() {
     this.setupAxiosInterceptor();
-    this.initializeTokenTimers(); // ← Add this line
+    this.initializeTokenTimers();
   }
 
-  // ← Add this new method
   private initializeTokenTimers(): void {
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('accessToken');
@@ -60,7 +59,7 @@ export class UserAuthService {
       this.toastr.success('Registration sucessful!', 'Success');
       return response;
     }).catch((error: any) => {
-      this.toastr.error(error.response?.data?.message || 'Login failed', 'Error');
+      this.toastr.error(error.response?.data?.message || 'Registration failed', 'Error');
       throw error;
     });
   }
@@ -73,6 +72,17 @@ export class UserAuthService {
     return axios.post('/user/reset/password', passwordReset)
   }
 
+  revoke(email: string) {
+    return axios.post(
+      `/revoke-user-tokens/${encodeURIComponent(email)}`,
+      {},
+      {
+        headers: {
+          Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+        }
+      }
+    );
+  }
   private isRefreshing = false;
   private refreshPromise?: Promise<any>;
 
@@ -83,6 +93,7 @@ export class UserAuthService {
 
     const refreshToken = localStorage.getItem('refreshToken');
     if (!refreshToken) {
+      console.log('No refresh token available');
       this.logout();
       return Promise.reject('No refresh token');
     }
@@ -96,21 +107,32 @@ export class UserAuthService {
     this.isRefreshing = true;
     this.refreshPromise = axios.post('/refresh', { refreshToken })
       .then((response) => {
-        console.log(response)
+        console.log('Refresh response:', response);
         if (response.data?.accessToken && response.data?.refreshToken) {
           localStorage.setItem('accessToken', response.data.accessToken);
           localStorage.setItem('refreshToken', response.data.refreshToken);
-          this.refreshWarningShown = false; // Reset flag for next refresh cycle
+          this.refreshWarningShown = false;
+          
+          // Initialize countdown with new token time
+          const decoded = this.decodeToken(response.data.accessToken);
+          if (decoded?.exp) {
+            const expTime = decoded.exp * 1000;
+            const remaining = Math.max(0, expTime - Date.now());
+            this.tokenCountdown$.next(Math.floor(remaining / 1000));
+          }
+          
           this.startTokenTimer();
           this.startTokenTimerWithCountdown();
+          this.toastr.success('Session refreshed successfully!', 'Success');
           return response.data;
         } else {
-          console.log(123)
+          console.log('Invalid refresh response - missing tokens');
           throw new Error('Invalid refresh response');
         }
       })
       .catch((err) => {
-        console.log(999)
+        console.log('Refresh token error:', err.response?.status, err.response?.data);
+        this.toastr.error('Session expired. Please log in again.', 'Error');
         this.logout();
         throw err;
       })
@@ -148,15 +170,23 @@ export class UserAuthService {
       async (error) => {
         const originalRequest = error.config;
 
+        // CRITICAL: Don't intercept errors from the refresh endpoint itself
+        if (originalRequest.url?.includes('/refresh')) {
+          console.log('Refresh endpoint returned error:', error.response?.status);
+          return Promise.reject(error);
+        }
+
         if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
           try {
+            console.log('401 error - attempting to refresh token');
             await this.refreshTokenOnce();
             originalRequest.headers.Authorization = `Bearer ${localStorage.getItem('accessToken')}`;
             return axios(originalRequest);
-          } catch {
-            console.log(777)
+          } catch (refreshError) {
+            console.log('Failed to refresh token in interceptor');
             this.logout();
+            return Promise.reject(refreshError);
           }
         }
         return Promise.reject(error);
@@ -171,6 +201,10 @@ export class UserAuthService {
     // Clean up timers
     if (this.tokenTimer) clearTimeout(this.tokenTimer);
     if (this.countdownSub) this.countdownSub.unsubscribe();
+    
+    // Reset state
+    this.refreshWarningShown = false;
+    this.tokenCountdown$.next(0);
     
     this.toastr.info('Session expired. Please log in again.', 'Info');
     window.location.href = '/login';
@@ -188,7 +222,7 @@ export class UserAuthService {
     const decoded = this.decodeToken(token);
     if (!decoded?.exp) return true;
 
-    const exp = decoded.exp * 1000; // convert to ms
+    const exp = decoded.exp * 1000;
     const now = Date.now();
 
     // refresh if expiry is within 30 seconds

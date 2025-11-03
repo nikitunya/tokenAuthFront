@@ -16,7 +16,6 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 axios.defaults.baseURL = environment.apiUrl;
 axios.interceptors.request.use((config) => {
   if (!config.headers) config.headers = {} as any; // type cast
-  config.headers['X-Binarybox-Api-Key'] = environment.apiKey;
   return config;
 });
 

@@ -1,28 +1,33 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { User } from '../../model/user';
 import { UserAuthService } from '../../services/user-auth.service';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { DataService } from '../../services/data.service';
 import { Subscription } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule], // ← Added FormsModule for ngModel
   templateUrl: './dashboard.component.html',
   styleUrls: []
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   user!: User;
 
-  customers: string[] = [];
+  revokeEmail: string = '';
+  revokeResult: string = '';
   products: string[] = [];
   addresses: string[] = [];
 
   isLoading = false;
   remainingSeconds = 0;
   private countdownSub?: Subscription;
+
+  private toastr = inject(ToastrService);
 
   constructor(
     public userAuthService: UserAuthService,
@@ -76,16 +81,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.router.navigateByUrl('/');
   }
 
-  listCustomers(): void {
-    this.dataService.listCustomers()
+  revokeAccess(): void {
+    if (!this.revokeEmail || !this.revokeEmail.trim()) {
+      this.revokeResult = 'Please enter an email';
+      return;
+    }
+
+    this.userAuthService.revoke(this.revokeEmail)
       .then(response => {
-        this.customers = response.data;
+        this.revokeResult = response.data?.message || 'Access revoked successfully';
+        this.revokeEmail = ''; // Clear the input
       })
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error(err);
+        this.toastr.error(err.response?.data.error, 'Error');
+      });
   }
 
   listProducts(): void {
-    console.log(123)
     this.dataService.listProducts()
       .then(response => {
         this.products = response.data;
