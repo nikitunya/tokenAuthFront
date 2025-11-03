@@ -103,7 +103,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
       .then(response => {
         this.products = response.data;
       })
-      .catch(err => console.error(err));
+      .catch(err => {
+        if (err.response) {
+          if (err.response.status === 403) {
+            this.toastr.error('Access forbidden. You do not have permission.', 'Forbidden');
+          } else {
+            this.toastr.error(err.response.data?.error || 'An unexpected error occurred.', 'Error');
+          }
+        } else {
+          this.toastr.error('Network error or server unavailable.', 'Error');
+        }
+      });
   }
 
   listAddresses(): void {
@@ -111,7 +121,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
       .then(response => {
         this.addresses = response.data;
       })
-      .catch(err => console.error(err));
+      .catch(err => {
+        if (err.response) {
+          if (err.response.status === 403) {
+            this.toastr.error('Access forbidden. You do not have permission.', 'Forbidden');
+          } else {
+            this.toastr.error(err.response.data?.error || 'An unexpected error occurred.', 'Error');
+          }
+        } else {
+          this.toastr.error('Network error or server unavailable.', 'Error');
+        }
+      });
   }
 
   formatTime(seconds: number): string {
