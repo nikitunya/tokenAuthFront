@@ -88,7 +88,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.userAuthService.revoke(this.revokeEmail)
       .then(response => {
         this.revokeResult = response.data?.message || 'Access revoked successfully';
-        this.revokeEmail = ''; // Clear the input
+        this.revokeEmail = '';
+        this.toastr.success('Revoked successfully!', 'Success');
       })
       .catch(err => {
         this.toastr.error(err.response?.data.error, 'Error');
