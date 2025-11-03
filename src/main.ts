@@ -9,6 +9,8 @@ import { AppComponent } from './app.component';
 import { LoginComponent } from './app/components/login/login.component';
 import { DashboardComponent } from './app/components/dashboard/dashboard.component'; // Example
 import { RegisterComponent } from './app/components/register/register.component';
+import { provideToastr } from 'ngx-toastr';
+import { provideAnimations } from '@angular/platform-browser/animations';
 
 // Axios global setup
 axios.defaults.baseURL = environment.apiUrl;
@@ -29,6 +31,12 @@ const routes: Routes = [
 bootstrapApplication(AppComponent, {
   providers: [
     importProvidersFrom(BrowserModule, FormsModule, ReactiveFormsModule),
-    provideRouter(routes)
+    provideRouter(routes),
+    provideAnimations(),
+    provideToastr({
+      timeOut: 3000,
+      positionClass: 'toast-top-center',
+      preventDuplicates: true,
+    })
   ]
 })

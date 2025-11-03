@@ -3,7 +3,8 @@
     <div class="card shadow-sm">
       <div class="card-body">
         <h5 class="card-title mb-4 text-center">Register</h5>
-        <form>
+
+        <form #registerForm="ngForm" novalidate>
           <!-- First Name -->
           <div class="mb-3">
             <label for="firstName" class="form-label">First Name</label>
@@ -14,9 +15,10 @@
               name="firstName"
               [(ngModel)]="entity.firstName"
               required
+              #firstNameRef="ngModel"
             />
-            <div *ngIf="validationErrors?.firstName" class="flex flex-col">
-              <small class="text-danger">{{ validationErrors.firstName[0] }}</small>
+            <div *ngIf="firstNameRef.invalid && firstNameRef.touched" class="flex flex-col">
+              <small class="text-danger">First name is required.</small>
             </div>
           </div>
 
@@ -30,13 +32,13 @@
               name="lastName"
               [(ngModel)]="entity.lastName"
               required
+              #lastNameRef="ngModel"
             />
-            <div *ngIf="validationErrors?.lastName" class="flex flex-col">
-              <small class="text-danger">{{ validationErrors.lastName[0] }}</small>
+            <div *ngIf="lastNameRef.invalid && lastNameRef.touched" class="flex flex-col">
+              <small class="text-danger">Last name is required.</small>
             </div>
           </div>
 
-          <!-- Email -->
           <div class="mb-3">
             <label for="email" class="form-label">Email address</label>
             <input
@@ -46,7 +48,18 @@
               name="email"
               [(ngModel)]="entity.email"
               required
+              pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+              #emailRef="ngModel"
             />
+            <div *ngIf="emailRef.invalid && emailRef.touched" class="flex flex-col">
+              <small *ngIf="emailRef.errors?.['required']" class="text-danger">
+                Email is required.
+              </small>
+              <small *ngIf="emailRef.errors?.['pattern']" class="text-danger">
+                Invalid email format.
+              </small>
+            </div>
+
             <div *ngIf="validationErrors?.email" class="flex flex-col">
               <small class="text-danger">{{ validationErrors.email[0] }}</small>
             </div>
@@ -62,9 +75,14 @@
               name="phone"
               [(ngModel)]="entity.phone"
               required
+              pattern="^[0-9]{9,15}$"
+              #phoneRef="ngModel"
             />
-            <div *ngIf="validationErrors?.phone" class="flex flex-col">
-              <small class="text-danger">{{ validationErrors.phone[0] }}</small>
+            <div *ngIf="phoneRef.invalid && phoneRef.touched" class="flex flex-col">
+              <small *ngIf="phoneRef.errors?.['required']" class="text-danger">Phone number is required.</small>
+              <small *ngIf="phoneRef.errors?.['pattern']" class="text-danger">
+                Phone must contain 9–15 digits.
+              </small>
             </div>
           </div>
 
@@ -78,9 +96,16 @@
               name="password"
               [(ngModel)]="entity.password"
               required
+              pattern="^(?=.*[0-9])(?=.*[A-Z])[^\s]{6,}$"
+              #passwordRef="ngModel"
             />
-            <div *ngIf="validationErrors?.password" class="flex flex-col">
-              <small class="text-danger">{{ validationErrors.password[0] }}</small>
+            <div *ngIf="passwordRef.invalid && passwordRef.touched" class="flex flex-col">
+              <small *ngIf="passwordRef.errors?.['required']" class="text-danger">
+                Password is required.
+              </small>
+              <small *ngIf="passwordRef.errors?.['pattern']" class="text-danger">
+                Must contain at least one uppercase letter, one number, no spaces, and at least 6 characters.
+              </small>
             </div>
           </div>
 
@@ -94,16 +119,17 @@
               name="confirmPassword"
               [(ngModel)]="confirmPassword"
               required
+              #confirmPasswordRef="ngModel"
             />
             <div
               *ngIf="
-                (confirmPassword && entity.password !== confirmPassword) ||
-                validationErrors?.confirmPassword
+                confirmPasswordRef.touched &&
+                (entity.password !== confirmPassword || confirmPasswordRef.invalid)
               "
               class="flex flex-col"
             >
               <small class="text-danger">
-                {{ validationErrors?.confirmPassword?.[0] || 'Passwords do not match' }}
+                {{ entity.password !== confirmPassword ? 'Passwords do not match.' : 'Confirm password is required.' }}
               </small>
             </div>
           </div>
@@ -115,12 +141,7 @@
               class="btn btn-primary btn-block"
               [disabled]="
                 isSubmitting ||
-                !entity.firstName ||
-                !entity.lastName ||
-                !entity.email ||
-                !entity.phone ||
-                !entity.password ||
-                !confirmPassword ||
+                registerForm.invalid ||
                 entity.password !== confirmPassword
               "
               (click)="registerAction()"

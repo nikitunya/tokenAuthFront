@@ -1,27 +1,30 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { UserAuthService } from '../../services/user-auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { JwtToken } from '../../model/jwtToken';
 import { User } from '../../model/user';
+import { PasswordResetModalComponent } from '../password-reset/password-reset.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, PasswordResetModalComponent], // ← Add here!
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
   entity: User = {};
   isSubmitting = false;
-  validationErrors:any = []
+  validationErrors: any = []
+
+  @ViewChild('passwordResetModal') passwordResetModal!: PasswordResetModalComponent;
 
   constructor(public userAuthService: UserAuthService, private router: Router) {}
 
   ngOnInit(): void {
-    if (typeof window !== 'undefined') {   // ✅ check if we are in the browser
+    if (typeof window !== 'undefined') {
       const token = localStorage.getItem('token');
       if (token) {
         this.router.navigateByUrl('/dashboard');
@@ -34,13 +37,15 @@ export class LoginComponent implements OnInit {
 
     this.userAuthService.login(this.entity)
       .then(({data}: any) => {
+        console.log(999)
         localStorage.setItem('token', data.jwtToken);
         this.router.navigateByUrl('/dashboard');
       })
       .catch((error: any) => {
         this.isSubmitting = false;
-        this.validationErrors =
-          error.response?.data?.errors || error.response?.data?.error || [];
+        if (error.response.data.message === 'Password is expired. Please reset password') {
+          this.passwordResetModal.openModal();
+        } 
       });
   }
 }

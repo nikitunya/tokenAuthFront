@@ -3,11 +3,8 @@
     <div class="card shadow-sm">
       <div class="card-body">
         <h5 class="card-title mb-4 text-center">Sign In</h5>
-        <form>
-          <!-- General Error -->
-          <p *ngIf="validationErrors?.length > 0" class="text-center">
-            <small class="text-danger">{{ validationErrors }}</small>
-          </p>
+
+        <form #loginForm="ngForm" novalidate>
 
           <!-- Email -->
           <div class="mb-3">
@@ -19,9 +16,16 @@
               name="email"
               [(ngModel)]="entity.email"
               required
+              pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+              #emailRef="ngModel"
             />
-            <div *ngIf="validationErrors?.email" class="flex flex-col">
-              <small class="text-danger">{{ validationErrors.email[0] }}</small>
+            <div *ngIf="emailRef.invalid && emailRef.touched" class="flex flex-col">
+              <small *ngIf="emailRef.errors?.['required']" class="text-danger">
+                Email is required.
+              </small>
+              <small *ngIf="emailRef.errors?.['pattern']" class="text-danger">
+                Invalid email format.
+              </small>
             </div>
           </div>
 
@@ -35,9 +39,16 @@
               name="password"
               [(ngModel)]="entity.password"
               required
+              pattern="^(?=.*[0-9])(?=.*[A-Z])[^\s]{6,}$"
+              #passwordRef="ngModel"
             />
-            <div *ngIf="validationErrors?.password" class="flex flex-col">
-              <small class="text-danger">{{ validationErrors.password[0] }}</small>
+            <div *ngIf="passwordRef.invalid && passwordRef.touched" class="flex flex-col">
+              <small *ngIf="passwordRef.errors?.['required']" class="text-danger">
+                Password is required.
+              </small>
+              <small *ngIf="passwordRef.errors?.['pattern']" class="text-danger">
+                Must contain at least one uppercase letter, one number, no spaces, and at least 6 characters.
+              </small>
             </div>
           </div>
 
@@ -46,11 +57,7 @@
             <button
               type="button"
               class="btn btn-primary btn-block"
-              [disabled]="
-                isSubmitting ||
-                !entity.email ||
-                !entity.password
-              "
+              [disabled]="isSubmitting || loginForm.invalid"
               (click)="loginAction()"
             >
               Login
@@ -66,3 +73,5 @@
     </div>
   </div>
 </div>
+
+<app-password-reset-modal #passwordResetModal></app-password-reset-modal>

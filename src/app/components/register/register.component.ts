@@ -32,8 +32,7 @@ export class RegisterComponent implements OnInit{
  
     this.userAuthService.register(this.entity)
     .then(({data}: any) => {
-      localStorage.setItem('token', data.token)
-      this.router.navigateByUrl('/dashboard')
+      this.router.navigateByUrl('/login')
       return data
     }).catch((error: any) => {
       this.isSubmitting = false;
