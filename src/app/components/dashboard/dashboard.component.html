@@ -69,6 +69,15 @@
           placeholder="Addresses will appear here"
         />
       </div>
+      <div class="text-center mt-3 text-muted">
+        <ng-container *ngIf="remainingSeconds > 0; else loading">
+          ⏳ Session expires in: {{ formatTime(remainingSeconds) }}
+        </ng-container>
+        <ng-template #loading>
+          <span *ngIf="!user">Loading session...</span>
+          <span *ngIf="user">⚠️ Session expired</span>
+        </ng-template>
+      </div>
     </div>
   </div>
 </div>

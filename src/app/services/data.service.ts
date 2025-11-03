@@ -7,7 +7,7 @@ import axios from 'axios';
 export class DataService {
 
     private getAuthHeader() {
-        const token = localStorage.getItem('token'); // get JWT from localStorage
+        const token = localStorage.getItem('accessToken'); // get JWT from localStorage
         return { Authorization: `Bearer ${token}` };
     }
 

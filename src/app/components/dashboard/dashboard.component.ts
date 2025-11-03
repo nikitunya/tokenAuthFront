@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { User } from '../../model/user';
 import { UserAuthService } from '../../services/user-auth.service';
 import { CommonModule } from '@angular/common';
 import { DataService } from '../../services/data.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,7 +13,7 @@ import { DataService } from '../../services/data.service';
   templateUrl: './dashboard.component.html',
   styleUrls: []
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   user!: User;
 
   customers: string[] = [];
@@ -20,6 +21,8 @@ export class DashboardComponent implements OnInit {
   addresses: string[] = [];
 
   isLoading = false;
+  remainingSeconds = 0;
+  private countdownSub?: Subscription;
 
   constructor(
     public userAuthService: UserAuthService,
@@ -28,12 +31,19 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
 
     if (!token) {
       this.router.navigateByUrl('/');
-      return; // ← Important: stop execution here
+      return;
     }
+
+    // Subscribe to countdown with a small delay to allow timers to initialize
+    setTimeout(() => {
+      this.countdownSub = this.userAuthService.tokenCountdown$.subscribe(seconds => {
+        this.remainingSeconds = seconds;
+      });
+    }, 100);
 
     // Prevent multiple calls
     if (this.isLoading) return;
@@ -47,14 +57,22 @@ export class DashboardComponent implements OnInit {
       .catch(err => {
         console.error(err);
         this.isLoading = false;
-        console.log(555)
-        localStorage.removeItem('token'); // Clear invalid token
+        console.log(555);
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
         this.router.navigateByUrl('/');
       });
   }
 
+  ngOnDestroy(): void {
+    if (this.countdownSub) {
+      this.countdownSub.unsubscribe();
+    }
+  }
+
   logoutAction(): void {
-    localStorage.removeItem('token');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     this.router.navigateByUrl('/');
   }
 
@@ -67,6 +85,7 @@ export class DashboardComponent implements OnInit {
   }
 
   listProducts(): void {
+    console.log(123)
     this.dataService.listProducts()
       .then(response => {
         this.products = response.data;
@@ -80,5 +99,11 @@ export class DashboardComponent implements OnInit {
         this.addresses = response.data;
       })
       .catch(err => console.error(err));
+  }
+
+  formatTime(seconds: number): string {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   }
 }

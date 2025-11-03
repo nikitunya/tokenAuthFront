@@ -25,7 +25,7 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('accessToken');
       if (token) {
         this.router.navigateByUrl('/dashboard');
       }
@@ -37,8 +37,10 @@ export class LoginComponent implements OnInit {
 
     this.userAuthService.login(this.entity)
       .then(({data}: any) => {
-        console.log(999)
-        localStorage.setItem('token', data.jwtToken);
+        localStorage.setItem('accessToken', data.accessToken);
+        localStorage.setItem('refreshToken', data.refreshToken);
+        this.userAuthService.startTokenTimer();
+        this.userAuthService.startTokenTimerWithCountdown();
         this.router.navigateByUrl('/dashboard');
       })
       .catch((error: any) => {

@@ -21,7 +21,7 @@ export class RegisterComponent implements OnInit{
   constructor(public userAuthService: UserAuthService, private router: Router) {}
  
   ngOnInit(): void {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
     if (token) {
       this.router.navigateByUrl('/dashboard');
     }
