@@ -93,7 +93,6 @@ export class UserAuthService {
 
     const refreshToken = localStorage.getItem('refreshToken');
     if (!refreshToken) {
-      console.log('No refresh token available');
       this.logout();
       return Promise.reject('No refresh token');
     }
@@ -107,7 +106,6 @@ export class UserAuthService {
     this.isRefreshing = true;
     this.refreshPromise = axios.post('/refresh', { refreshToken })
       .then((response) => {
-        console.log('Refresh response:', response);
         if (response.data?.accessToken && response.data?.refreshToken) {
           localStorage.setItem('accessToken', response.data.accessToken);
           localStorage.setItem('refreshToken', response.data.refreshToken);
@@ -126,12 +124,10 @@ export class UserAuthService {
           this.toastr.success('Session refreshed successfully!', 'Success');
           return response.data;
         } else {
-          console.log('Invalid refresh response - missing tokens');
           throw new Error('Invalid refresh response');
         }
       })
       .catch((err) => {
-        console.log('Refresh token error:', err.response?.status, err.response?.data);
         this.toastr.error('Session expired. Please log in again.', 'Error');
         this.logout();
         throw err;
@@ -172,19 +168,16 @@ export class UserAuthService {
 
         // CRITICAL: Don't intercept errors from the refresh endpoint itself
         if (originalRequest.url?.includes('/refresh')) {
-          console.log('Refresh endpoint returned error:', error.response?.status);
           return Promise.reject(error);
         }
 
         if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
           try {
-            console.log('401 error - attempting to refresh token');
             await this.refreshTokenOnce();
             originalRequest.headers.Authorization = `Bearer ${localStorage.getItem('accessToken')}`;
             return axios(originalRequest);
           } catch (refreshError) {
-            console.log('Failed to refresh token in interceptor');
             this.logout();
             return Promise.reject(refreshError);
           }

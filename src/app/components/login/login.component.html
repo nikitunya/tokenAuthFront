@@ -8,15 +8,16 @@
 
           <!-- Email -->
           <div class="mb-3">
-            <label for="email" class="form-label">Email address</label>
+            <label for="loginEmail" class="form-label">Email address</label>
             <input
               type="email"
               class="form-control"
-              id="email"
+              id="loginEmail"
               name="email"
               [(ngModel)]="entity.email"
               required
-              pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+              pattern="^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$"
+              autocomplete="email"
               #emailRef="ngModel"
             />
             <div *ngIf="emailRef.invalid && emailRef.touched" class="flex flex-col">
@@ -31,23 +32,20 @@
 
           <!-- Password -->
           <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
+            <label for="loginPassword" class="form-label">Password</label>
             <input
               type="password"
               class="form-control"
-              id="password"
+              id="loginPassword"
               name="password"
               [(ngModel)]="entity.password"
               required
-              pattern="^(?=.*[0-9])(?=.*[A-Z])[^\s]{6,}$"
+              autocomplete="current-password"
               #passwordRef="ngModel"
             />
             <div *ngIf="passwordRef.invalid && passwordRef.touched" class="flex flex-col">
               <small *ngIf="passwordRef.errors?.['required']" class="text-danger">
                 Password is required.
-              </small>
-              <small *ngIf="passwordRef.errors?.['pattern']" class="text-danger">
-                Must contain at least one uppercase letter, one number, no spaces, and at least 6 characters.
               </small>
             </div>
           </div>

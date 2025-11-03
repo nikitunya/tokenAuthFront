@@ -60,9 +60,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       })
       .catch(err => {
-        console.error(err);
         this.isLoading = false;
-        console.log(555);
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         this.router.navigateByUrl('/');
@@ -93,7 +91,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.revokeEmail = ''; // Clear the input
       })
       .catch(err => {
-        console.error(err);
         this.toastr.error(err.response?.data.error, 'Error');
       });
   }
